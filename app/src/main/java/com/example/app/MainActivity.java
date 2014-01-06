@@ -122,6 +122,8 @@ public class MainActivity extends Activity {
             int customerID = jObject.getInt("id");
             String customerName = jObject.getString("name");
 
+
+
             /* Toast for dev purposes */
             Context context = getApplicationContext();
             Toast.makeText(context, customerName, Toast.LENGTH_LONG).show();
@@ -182,7 +184,7 @@ public class MainActivity extends Activity {
 //        Handler handler = new Handler();
 //        handler.postDelayed(mNavHider, 1000);
 
-        handleLoginErrors(login(98593));
+        handleLoginErrors(login(9858));
     }
 
     @Override
