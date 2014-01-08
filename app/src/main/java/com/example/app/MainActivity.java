@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -48,6 +49,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity {
+    // key definition for communication through intent messages
+    public final static String CUSTOMER_LEVEL = "com.example.app.CUSTOMER_LEVEL";
+    public final static String CUSTOMER_ID = "com.example.app.CUSTOMER_ID";
+    public final static String CUSTOMER_NAME = "com.example.app.CUSTOMER_NAME";
 
     public void handleLoginErrors(int errCode) {
         String errMessage = "Oops, something went wrong.\n\nPlease try again or contact an employee." +
@@ -106,27 +111,33 @@ public class MainActivity extends Activity {
                 return 6;
             }
 
-            //Get response body
+            // Get response body
             ResponseHandler<String> handler = new BasicResponseHandler();
             String httpBody = handler.handleResponse(response);
 
-            //Parse JSON
+            // Parse JSON
             JSONObject jObject = new JSONObject(httpBody);
 
-            //Check for error response
+            // Check for error response
             if (!jObject.isNull("error_code")) {
                 return jObject.getInt("error_code");
             }
 
-            //No errors encountered - login should be good
+            // No errors encountered - login should be good
             int customerID = jObject.getInt("id");
+            int customerLevel = jObject.getInt("level");
             String customerName = jObject.getString("name");
 
-
+            // Succesfull login, start new activity for bed selection and pass relevant messages
+            Intent intent = new Intent(this, BedSelection.class);
+            intent.putExtra(CUSTOMER_ID, customerID);
+            intent.putExtra(CUSTOMER_LEVEL, customerLevel);
+            intent.putExtra(CUSTOMER_NAME, customerName);
+            startActivity(intent);
 
             /* Toast for dev purposes */
-            Context context = getApplicationContext();
-            Toast.makeText(context, customerName, Toast.LENGTH_LONG).show();
+            //Context context = getApplicationContext();
+            //Toast.makeText(context, customerName, Toast.LENGTH_LONG).show();
             /* end toast */
 
         } catch (UnknownHostException e) {
