@@ -20,7 +20,8 @@
         </activity>
         <activity
             android:name="com.example.app.BedSelection"
-            android:label="@string/title_activity_bed_selection" >
+            android:label="@string/title_activity_bed_selection"
+            android:theme="@style/TestTheme">
         </activity>
     </application>
 

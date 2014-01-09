@@ -1,8 +1,6 @@
 package com.example.app;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,27 +22,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -81,42 +65,21 @@ public class MainActivity extends Activity {
     public int login(long keynum) {
         String keynumString = Long.toString(keynum);
 
-        //Get ip address, post to /customer_login, parse response, and handle response
+        // POST to customer_login and handle response
         try {
-            /* get ip address by hostname
-               Doesn't work on the emulator, requires Internet Permissions */
-            InetAddress addr = java.net.InetAddress.getByName("SethThinkPadWin");
-            String ip = addr.getHostAddress() + ":9000";
-
-            // Setup Post to customer_login
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://" + ip + "/customer_login");
-            // Add http timeout
-            HttpParams httpParams = httpclient.getParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 1000);
-            HttpConnectionParams.setSoTimeout(httpParams, 1000);
-
-            // Add params
+            // create parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>(2);
             params.add(new BasicNameValuePair("Fob_num", keynumString));
-            httpPost.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
 
-            // Execute HTTP Post Request
-            HttpResponse response = httpclient.execute(httpPost);
+            // post to customer_login
+            ToastyHttpResponse response = ToastyHTTPHandler.Post("customer_login", params);
 
-            // Check for correct http response code
-            int httpStatus = response.getStatusLine().getStatusCode();
-            if (httpStatus != 200) {
-                //TODO log response code - maybe throw an exception
-                return 6;
+            if (response.Error != 0) {
+                return response.Error;
             }
 
-            // Get response body
-            ResponseHandler<String> handler = new BasicResponseHandler();
-            String httpBody = handler.handleResponse(response);
-
             // Parse JSON
-            JSONObject jObject = new JSONObject(httpBody);
+            JSONObject jObject = new JSONObject(response.Body);
 
             // Check for error response
             if (!jObject.isNull("error_code")) {
@@ -128,7 +91,7 @@ public class MainActivity extends Activity {
             int customerLevel = jObject.getInt("level");
             String customerName = jObject.getString("name");
 
-            // Succesfull login, start new activity for bed selection and pass relevant messages
+            // Successful login, start new activity for bed selection and pass relevant messages
             Intent intent = new Intent(this, BedSelection.class);
             intent.putExtra(CUSTOMER_ID, customerID);
             intent.putExtra(CUSTOMER_LEVEL, customerLevel);
@@ -140,12 +103,6 @@ public class MainActivity extends Activity {
             //Toast.makeText(context, customerName, Toast.LENGTH_LONG).show();
             /* end toast */
 
-        } catch (UnknownHostException e) {
-            return 7;
-        } catch (ClientProtocolException e) {
-            return 8;
-        } catch (IOException e) {
-            return 9; // Most likely ConnectTimeout exception or NoHttpResponse exception caused by server not running
         } catch (JSONException e) {
             e.printStackTrace();
             return 10;

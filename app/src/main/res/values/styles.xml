@@ -6,4 +6,18 @@
         <item name="android:background">@color/toasty_blue</item>
     </style>
 
+    <style name="TestTheme" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/TestActionBar</item>
+        <item name="android:background">@color/toasty_blue</item>
+    </style>
+
+    <style name="TestActionBar" parent="android:style/Widget.Holo.Light.ActionBar">
+        <!--<item name="android:background">@color/nav_bar_gray</item>-->
+        <item name="android:displayOptions"></item>
+    </style>
+
+    <!--<style name="TestTabs">-->
+        <!--<item name="android:background">@color/nav_bar_gray</item>-->
+    <!--</style>-->
+
 </resources>
