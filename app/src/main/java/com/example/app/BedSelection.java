@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -65,8 +67,9 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
                 String name = row.getString("Name");
                 String num = row.getString("Bed_num");
                 int maxTime = row.getInt("Max_time");
+                Boolean status = row.getBoolean("Status");
 
-                beds.add(new Bed(name, num, maxTime));
+                beds.add(new Bed(name, num, maxTime, status));
 
                 /* Toast for dev purposes */
                 //Context context = getApplicationContext();
@@ -95,15 +98,23 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
 
         Intent intent = getIntent();
         customerID = intent.getIntExtra(MainActivity.CUSTOMER_ID, 0);
-        customerLevel=  5;// TODO remove comments intent.getIntExtra(MainActivity.CUSTOMER_LEVEL, 0);
+        customerLevel=  3;// TODO remove comments intent.getIntExtra(MainActivity.CUSTOMER_LEVEL, 0);
         customerName =  intent.getStringExtra(MainActivity.CUSTOMER_NAME);
 
 
         /* Create new adapter to handle populating beds, and attach to ListView
            This has to come before setting up the tabs, so that an adapter exists when a tab is selected */
         adapter = new BedsAdapter(this);
-        ListView listView = (ListView) findViewById(R.id.bedList);
-        listView.setAdapter(adapter);
+        GridView gridView = (GridView) findViewById(R.id.bedList);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            public void onItemClick(AdapterView parent, View v, int position, long id) {
+                Context context = getApplicationContext();
+                Toast.makeText(context, "sss "+ position, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         ActionBar bar = getActionBar();
         // Set up tabs for each level the customer has access to except highest one
@@ -168,10 +179,12 @@ class Bed {
     public String Name;
     public String Number;
     public int MaxTime;
+    public Boolean Status;
 
-    public Bed(String name, String number, int maxTime) {
+    public Bed(String name, String number, int maxTime, Boolean status) {
         this.Name = name;
         this.Number = number;
         this.MaxTime = maxTime;
+        this.Status = status;
     }
 }

@@ -2,4 +2,6 @@
 <resources>
     <color name="toasty_blue">#2A80B9</color>
     <color name="nav_bar_gray">#0A0A0A</color>
+    <color name="bed_background_off_white">#FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>

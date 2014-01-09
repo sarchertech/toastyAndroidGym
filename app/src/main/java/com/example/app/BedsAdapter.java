@@ -1,10 +1,13 @@
 package com.example.app;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -30,6 +33,13 @@ public class BedsAdapter extends ArrayAdapter<Bed> {
         // Populate the data into the template view using the data object
         tvName.setText(bed.Name);
         tvNum.setText(bed.Number);
+        // Set red overlay for non-available beds
+
+        if (!bed.Status) {
+            ImageView imgView = (ImageView) convertView.findViewById(R.id.redBedOverlay);
+            imgView.setBackgroundColor(Color.parseColor("#80FF0000"));
+        }
+
         // Return the completed view to render on screen
         return convertView;
     }
