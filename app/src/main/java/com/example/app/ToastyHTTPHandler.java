@@ -70,7 +70,7 @@ public class ToastyHTTPHandler {
     }
 }
 
-// I hate JAVA so much
+// I hate JAVA so much. Creating an object just so I could return an optional error code
 class ToastyHttpResponse {
     public Integer Error;
     public String Body;

@@ -14,16 +14,78 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.ListView;
 import android.widget.Toast;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BedSelection extends Activity implements ActionBar.TabListener {
     // global so they are easily available to fragments
     public static int customerID;
     public static int customerLevel;
     public static String customerName;
+    public static BedsAdapter adapter;
 
-    public void getBedsByLevel(int lvl) {
+    public int getBedsByLevel(int lvl) {
+        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+        params.add(new BasicNameValuePair("Level", Integer.toString(lvl)));
 
+        // post to customer_login
+        ToastyHttpResponse response = ToastyHTTPHandler.Post("bed_status", params);
+
+        if (response.Error != 0) {
+            return response.Error;
+        }
+
+        try {
+            // Parse JSON
+            JSONObject jObject = new JSONObject(response.Body);
+
+            // Check for error response
+            if (!jObject.isNull("error_code")) {
+                /* generic error code for error response from bed_status--shouldn't happen unless
+                something really went wrong */
+                return 11;
+            }
+
+            JSONArray array = jObject.getJSONArray("beds");
+
+            // Convert JSON array to array of Bed objects
+            ArrayList<Bed> beds = new ArrayList<>();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject row = array.getJSONObject(i);
+
+                String name = row.getString("Name");
+                String num = row.getString("Bed_num");
+                int maxTime = row.getInt("Max_time");
+
+                beds.add(new Bed(name, num, maxTime));
+
+                /* Toast for dev purposes */
+                //Context context = getApplicationContext();
+                //Toast.makeText(context, bed.Name + " " + bed.Number, Toast.LENGTH_SHORT).show();
+                /* end toast */
+            }
+
+            adapter.clear();
+            adapter.addAll(beds);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            /* TODO This is a hack to clear the beds even if no beds are returned
+               Fix this by checking for null beds and handling it there */
+            adapter.clear();
+            return 10;
+        }
+
+        return 0; // No Error
     }
 
     @Override
@@ -36,8 +98,14 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
         customerLevel=  5;// TODO remove comments intent.getIntExtra(MainActivity.CUSTOMER_LEVEL, 0);
         customerName =  intent.getStringExtra(MainActivity.CUSTOMER_NAME);
 
-        ActionBar bar = getActionBar();
 
+        /* Create new adapter to handle populating beds, and attach to ListView
+           This has to come before setting up the tabs, so that an adapter exists when a tab is selected */
+        adapter = new BedsAdapter(this);
+        ListView listView = (ListView) findViewById(R.id.bedList);
+        listView.setAdapter(adapter);
+
+        ActionBar bar = getActionBar();
         // Set up tabs for each level the customer has access to except highest one
         for (int i=1; i<customerLevel; i++) {
             bar.addTab(bar.newTab().setText("Level " + i).setTabListener(this), i-1, false);
@@ -57,12 +125,7 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
         int t = tab.getPosition();
 
-        /* Toast for dev purposes */
-        Context context = getApplicationContext();
-        Toast.makeText(context, "tab " + (t+1), Toast.LENGTH_SHORT).show();
-        /* end toast */
-        // Do stuff based on new tab selected
-
+        getBedsByLevel(t + 1);
     }
 
     public void onTabUnselected(Tab tab, FragmentTransaction ft) {
@@ -99,4 +162,16 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
 //        }
 //        return super.onOptionsItemSelected(item);
 //    }
+}
+
+class Bed {
+    public String Name;
+    public String Number;
+    public int MaxTime;
+
+    public Bed(String name, String number, int maxTime) {
+        this.Name = name;
+        this.Number = number;
+        this.MaxTime = maxTime;
+    }
 }
