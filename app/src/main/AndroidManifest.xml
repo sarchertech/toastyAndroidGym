@@ -21,7 +21,11 @@
         <activity
             android:name="com.example.app.BedSelection"
             android:label="@string/title_activity_bed_selection"
-            android:theme="@style/TestTheme">
+            android:theme="@style/TestTheme" >
+        </activity>
+        <activity
+            android:name="com.example.app.MinuteSelection"
+            android:label="@string/title_activity_minute_selection" >
         </activity>
     </application>
 

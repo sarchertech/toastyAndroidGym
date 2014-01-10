@@ -108,16 +108,8 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
         GridView gridView = (GridView) findViewById(R.id.bedList);
         gridView.setAdapter(adapter);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            public void onItemClick(AdapterView parent, View v, int position, long id) {
-                Context context = getApplicationContext();
-                Toast.makeText(context, "sss "+ position, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        ActionBar bar = getActionBar();
         // Set up tabs for each level the customer has access to except highest one
+        ActionBar bar = getActionBar();
         for (int i=1; i<customerLevel; i++) {
             bar.addTab(bar.newTab().setText("Level " + i).setTabListener(this), i-1, false);
         }
@@ -127,10 +119,17 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
 
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        /* Toast for dev purposes */
-        Context context = getApplicationContext();
-        Toast.makeText(context, customerName, Toast.LENGTH_LONG).show();
-        /* end toast */
+        // Add listener to handle selecting beds
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            public void onItemClick(AdapterView parent, View v, int position, long id) {
+                //Context context = getApplicationContext();
+                //Toast.makeText(context, "sss "+ position, Toast.LENGTH_SHORT).show();
+                // Successful login, start new activity for bed selection and pass relevant messages
+                Intent intent = new Intent(getApplicationContext(), MinuteSelection.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void onTabSelected(Tab tab, FragmentTransaction ft) {

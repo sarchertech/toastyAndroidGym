@@ -11,7 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * Adapter for displaying bed list
+ * Adapter for displaying bed list. Handles displaying red overlay and disabling click for
+ * unavailable beds
  */
 public class BedsAdapter extends ArrayAdapter<Bed> {
     public BedsAdapter(Context context) {
@@ -33,8 +34,8 @@ public class BedsAdapter extends ArrayAdapter<Bed> {
         // Populate the data into the template view using the data object
         tvName.setText(bed.Name);
         tvNum.setText(bed.Number);
-        // Set red overlay for non-available beds
 
+        // Set red overlay for non-available beds
         if (!bed.Status) {
             ImageView imgView = (ImageView) convertView.findViewById(R.id.redBedOverlay);
             imgView.setBackgroundColor(Color.parseColor("#80FF0000"));
@@ -42,5 +43,17 @@ public class BedsAdapter extends ArrayAdapter<Bed> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    // allows us to use isEnabled to specify which beds are enabled
+    @Override
+    public boolean areAllItemsEnabled() {
+        return false;
+    }
+
+    // return bed status, beds with status false are disabled, i.e., can't be clicked b/c they are separators
+    @Override
+    public boolean isEnabled(int position) {
+        return getItem(position).Status;
     }
 }
