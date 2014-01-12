@@ -29,11 +29,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BedSelection extends Activity implements ActionBar.TabListener {
+    public final static String BED_NAME = "com.example.app.BED_NAME";
+    public final static String BED_NUM = "com.example.app.BED_NUM";
+    public final static String MAX_TIME = "com.example.app.MAX_TIME";
+
     // global so they are easily available to fragments
     public static int customerID;
     public static int customerLevel;
     public static String customerName;
     public static BedsAdapter adapter;
+    public static ArrayList<Bed> beds;
 
     public int getBedsByLevel(int lvl) {
         List<NameValuePair> params = new ArrayList<NameValuePair>(2);
@@ -60,7 +65,7 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
             JSONArray array = jObject.getJSONArray("beds");
 
             // Convert JSON array to array of Bed objects
-            ArrayList<Bed> beds = new ArrayList<>();
+            beds = new ArrayList<>();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject row = array.getJSONObject(i);
 
@@ -123,10 +128,13 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-                //Context context = getApplicationContext();
-                //Toast.makeText(context, "sss "+ position, Toast.LENGTH_SHORT).show();
-                // Successful login, start new activity for bed selection and pass relevant messages
+                Bed bed = beds.get(position);
+
                 Intent intent = new Intent(getApplicationContext(), MinuteSelection.class);
+                intent.putExtra(MainActivity.CUSTOMER_ID, customerID);
+                intent.putExtra(BED_NAME, bed.Name);
+;               intent.putExtra(BED_NUM, bed.Number);
+                intent.putExtra(MAX_TIME, bed.MaxTime);
                 startActivity(intent);
             }
         });
@@ -135,7 +143,7 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
         int t = tab.getPosition();
 
-        getBedsByLevel(t + 1);
+        getBedsByLevel(t + 1); //TODO handle errors
     }
 
     public void onTabUnselected(Tab tab, FragmentTransaction ft) {

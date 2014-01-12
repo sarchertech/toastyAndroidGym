@@ -32,14 +32,20 @@ public class BedsAdapter extends ArrayAdapter<Bed> {
         TextView tvName = (TextView) convertView.findViewById(R.id.listBedName);
         TextView tvNum = (TextView) convertView.findViewById(R.id.listBedNum);
         // Populate the data into the template view using the data object
+
         tvName.setText(bed.Name);
         tvNum.setText(bed.Number);
 
-        // Set red overlay for non-available beds
-        if (!bed.Status) {
-            ImageView imgView = (ImageView) convertView.findViewById(R.id.redBedOverlay);
+        /* Set red overlay for non-available beds--it was necessary to explicitly set the color
+           to transparent for the available beds. First 2 numbers are transparency 00 is transparent
+           FF is opaque. */
+        ImageView imgView = (ImageView) convertView.findViewById(R.id.redBedOverlay);
+        if (bed.Status) {
+            imgView.setBackgroundColor(Color.parseColor("#00FF0000"));
+        } else {
             imgView.setBackgroundColor(Color.parseColor("#80FF0000"));
         }
+
 
         // Return the completed view to render on screen
         return convertView;

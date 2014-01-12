@@ -6,7 +6,7 @@
         <item name="android:background">@color/toasty_blue</item>
     </style>
 
-    <style name="TestTheme" parent="android:Theme.Holo.Light">
+    <style name="CustomTheme" parent="android:Theme.Holo.Light">
         <item name="android:actionBarStyle">@style/TestActionBar</item>
         <item name="android:background">@color/toasty_blue</item>
         <item name="android:actionBarTabTextStyle">@style/ActionBarTabStyle</item>

@@ -9,9 +9,39 @@
     tools:context="com.example.app.MinuteSelection$PlaceholderFragment">
 
     <TextView
-        android:text="butusususususu"
+        android:id="@+id/minutesBedName"
+        android:text="Bed Name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:textSize="35sp"/>
+    <TextView
+        android:id="@+id/minutesBedNumber"
+        android:text="Bed Number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textSize="35sp" />
+
+    <NumberPicker
+        android:id="@+id/minutePicker"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="107dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="100dp" />
+    <Button
+        android:id="@+id/minuteButton"
+        android:layout_width="350dp"
+        android:layout_height="150dp"
+        android:textSize="25sp"
+        android:text="Start 0 Minute Session"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="100dp"
+        android:layout_marginTop="130dp"
+        android:enabled="false"
+        android:onClick="startBed"/>
 
 </RelativeLayout>
 
