@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,7 @@ public class MinuteSelection extends Activity {
         // post to start_bed
         ToastyHttpResponse response = ToastyHTTPHandler.Post("start_bed", params);
 
+        // check for http errors
         if (response.Error != 0) {
             // Display error message
             Context context = getApplicationContext();
@@ -49,7 +52,24 @@ public class MinuteSelection extends Activity {
             return;
         }
 
-        // Check for errors in JSON response TODO
+        // Check for errors in JSON response
+        try {
+            // Parse JSON
+            JSONObject jObject = new JSONObject(response.Body);
+
+            // Check for error response
+            if (!jObject.isNull("error_code")) {
+                /* generic error code for error response from bed_status--shouldn't happen unless
+                something really went wrong */
+                Context context = getApplicationContext();
+                Toast.makeText(context, "Oops, something went wrong\n\nError: 11", Toast.LENGTH_LONG).show();
+                return;
+            }
+        } catch(JSONException e) {
+            Context context = getApplicationContext();
+            Toast.makeText(context, "Oops, something went wrong\n\nError: 10", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         // Create new intent and go back to login activity (MainActivity)
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -70,7 +90,7 @@ public class MinuteSelection extends Activity {
         maxTime = intent.getIntExtra(BedSelection.MAX_TIME, 0);
 
         ActionBar actionBar = getActionBar();
-        actionBar.setHomeButtonEnabled(true);
+        //actionBar.setHomeButtonEnabled(true);
 
         // set up dynamic content
         TextView tvBedName = (TextView) findViewById(R.id.minutesBedName);
