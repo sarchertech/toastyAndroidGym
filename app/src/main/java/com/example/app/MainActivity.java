@@ -4,28 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.StrictMode;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -68,7 +55,7 @@ public class MainActivity extends Activity {
         // POST to customer_login and handle response
         try {
             // create parameters
-            List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+            List<NameValuePair> params = new ArrayList<>(2);
             params.add(new BasicNameValuePair("Fob_num", keynumString));
 
             // post to customer_login
@@ -106,46 +93,14 @@ public class MainActivity extends Activity {
         return 0; // No Error
     }
 
-//    public boolean hide() {
-//        View rootView = getWindow().getDecorView();
-//        rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-//        rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-//
-//        Runnable mNavHider = new Runnable() {
-//            @Override public void run() {
-//                hide();
-//            }
-//        };
-//
-//        Handler handler = new Handler();
-//        handler.postDelayed(mNavHider, 1000);
-//
-//        return true;
-//    }
-
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        super.onTouchEvent(event);
-//
-//
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
 
+        // setup navigation bar hiding
         View rootView = getWindow().getDecorView();
-        rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-
-//        Runnable mNavHider = new Runnable() {
-//            @Override public void run() {
-//                hide();
-//            }
-//        };
-//
-//        Handler handler = new Handler();
-//        handler.postDelayed(mNavHider, 1000);
+        Hider hider = new Hider(rootView);
+        hider.hide();
     }
 
     @Override
