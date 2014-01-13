@@ -3,21 +3,13 @@ package com.example.app;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.CountDownTimer;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -39,9 +31,10 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
     public static String customerName;
     public static BedsAdapter adapter;
     public static ArrayList<Bed> beds;
+    public static CountDownTimer logOutTimer;
 
     public int getBedsByLevel(int lvl) {
-        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+        List<NameValuePair> params = new ArrayList<>(2);
         params.add(new BasicNameValuePair("Level", Integer.toString(lvl)));
 
         // post to customer_login
@@ -75,11 +68,6 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
                 Boolean status = row.getBoolean("Status");
 
                 beds.add(new Bed(name, num, maxTime, status));
-
-                /* Toast for dev purposes */
-                //Context context = getApplicationContext();
-                //Toast.makeText(context, bed.Name + " " + bed.Number, Toast.LENGTH_SHORT).show();
-                /* end toast */
             }
 
             adapter.clear();
@@ -103,9 +91,19 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
 
         Intent intent = getIntent();
         customerID = intent.getIntExtra(MainActivity.CUSTOMER_ID, 0);
-        customerLevel=  3;// TODO remove comments intent.getIntExtra(MainActivity.CUSTOMER_LEVEL, 0);
+        customerLevel=  intent.getIntExtra(MainActivity.CUSTOMER_LEVEL, 0);
         customerName =  intent.getStringExtra(MainActivity.CUSTOMER_NAME);
 
+        // create new logOutTimer
+        logOutTimer = new CountDownTimer(60000, 60000) {
+            public void onTick(long millisUntilFinished) {
+                // don't need, do nothing
+            }
+
+            public void onFinish() {
+                finish();
+            }
+        };
 
         /* Create new adapter to handle populating beds, and attach to ListView
            This has to come before setting up the tabs, so that an adapter exists when a tab is selected */
@@ -133,7 +131,7 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
                 Intent intent = new Intent(getApplicationContext(), MinuteSelection.class);
                 intent.putExtra(MainActivity.CUSTOMER_ID, customerID);
                 intent.putExtra(BED_NAME, bed.Name);
-;               intent.putExtra(BED_NUM, bed.Number);
+                intent.putExtra(BED_NUM, bed.Number);
                 intent.putExtra(MAX_TIME, bed.MaxTime);
                 startActivity(intent);
             }
@@ -158,28 +156,32 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
     protected void onResume() {
         super.onResume();
 
+        View view = getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+
+        logOutTimer.start();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.bed_selection, menu);
-//        return true;
-//    }
+        logOutTimer.cancel();
+    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+
+        logOutTimer.cancel();
+        logOutTimer.start();
+
+        // help keep the nav bar in low-profile
+        final View view = getWindow().getDecorView();
+        if (view.getSystemUiVisibility() != View.SYSTEM_UI_FLAG_LOW_PROFILE){
+            view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        }
+    }
 }
 
 class Bed {

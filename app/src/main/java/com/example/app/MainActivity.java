@@ -97,10 +97,19 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        // setup navigation bar hiding
-        View rootView = getWindow().getDecorView();
-        Hider hider = new Hider(rootView);
-        hider.hide();
+        View view = getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+    }
+
+    @Override
+    public void onUserInteraction() {
+        // help keep the nav bar in low-profile
+        final View view = getWindow().getDecorView();
+        if (view.getSystemUiVisibility() != View.SYSTEM_UI_FLAG_LOW_PROFILE){
+            view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        }
+
+        //handleLoginErrors(login(9858));
     }
 
     @Override
@@ -132,10 +141,5 @@ public class MainActivity extends Activity {
             }
         });
         /* End handle keyfob field */
-
-//        View decorView = getWindow().getDecorView();
-//        // Hide the status bar.
-//        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-//        decorView.setSystemUiVisibility(uiOptions);
     }
 }

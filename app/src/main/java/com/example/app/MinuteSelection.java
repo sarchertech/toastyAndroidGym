@@ -1,19 +1,13 @@
 package com.example.app;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.os.CountDownTimer;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -33,6 +27,7 @@ public class MinuteSelection extends Activity {
     public static String bedNumber;
     public static int maxTime;
     public static int sessionTime;
+    public static CountDownTimer logOutTimer;
 
     public void startBed(View view) {
         // setup params
@@ -71,9 +66,30 @@ public class MinuteSelection extends Activity {
             return;
         }
 
-        // Create new intent and go back to login activity (MainActivity)
+        // disable button to prevent double pressing during toast wait
+        Button button = (Button) view.findViewById(R.id.minuteButton);
+        button.setEnabled(false);
+
+        Context context = getApplicationContext();
+        Toast.makeText(context, "Your bed will start in 5 minutes.", Toast.LENGTH_LONG).show();
+
+        /* Go back to login after the toasty is complete to prevent relogging before session is posted to DB.
+           This is possible b/c a session can't be logged until the bed is started, and this can take time */
+        new CountDownTimer(3000, 3000) {
+            public void onTick(long millisUntilFinished) {
+                // don't need, do nothing
+            }
+
+            public void onFinish() {
+                backToLogin();
+            }
+        }.start();
+    }
+
+    public void backToLogin() {
+        // goes to the top of the stack so you can't go back here
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Makes login top of the stack so you can't go back here
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
@@ -89,8 +105,16 @@ public class MinuteSelection extends Activity {
         bedNumber = intent.getStringExtra(BedSelection.BED_NUM);
         maxTime = intent.getIntExtra(BedSelection.MAX_TIME, 0);
 
-        ActionBar actionBar = getActionBar();
-        //actionBar.setHomeButtonEnabled(true);
+        // create new logOutTimer
+        logOutTimer = new CountDownTimer(60000, 60000) {
+            public void onTick(long millisUntilFinished) {
+                // don't need, do nothing
+            }
+
+            public void onFinish() {
+                backToLogin();
+            }
+        };
 
         // set up dynamic content
         TextView tvBedName = (TextView) findViewById(R.id.minutesBedName);
@@ -99,9 +123,6 @@ public class MinuteSelection extends Activity {
         tvBedNum.setText("Bed " + bedNumber);
 
         NumberPicker np = (NumberPicker) findViewById(R.id.minutePicker);
-//        String[] nums = new String[20];
-//        for(int i=0; i<nums.length; i++)
-//            nums[i] = Integer.toString(i);
 
         np.setMinValue(0);
         np.setMaxValue(maxTime);
@@ -114,7 +135,7 @@ public class MinuteSelection extends Activity {
             public void onValueChange(NumberPicker numberPicker, int i, int i2) {
                 sessionTime = i2;
 
-                Button button = (Button) findViewById(R.id.minuteButton);;
+                Button button = (Button) findViewById(R.id.minuteButton);
                 button.setText("Start " + i2 + " Minute Session");
 
                 if (i2>1) {
@@ -124,17 +145,6 @@ public class MinuteSelection extends Activity {
                 }
             }
         });
-
-        //TextView tv = (TextView) np.getChildAt(0);
-        //tv.setTextColor(Color.parseColor("#FFFFFF"));
-
-        //np.setBackgroundColor(Color.parseColor("#FFFFFF"));
-
-
-        /* Toast for dev purposes */
-        //Context context = getApplicationContext();
-        //Toast.makeText(context, bedName + customerID, Toast.LENGTH_SHORT).show();
-        /* end toast */
     }
 
     @Override
@@ -158,4 +168,34 @@ public class MinuteSelection extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        View view = getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+
+        logOutTimer.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        logOutTimer.cancel();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+
+        logOutTimer.cancel();
+        logOutTimer.start();
+
+        // help keep the nav bar in low-profile
+        final View view = getWindow().getDecorView();
+        if (view.getSystemUiVisibility() != View.SYSTEM_UI_FLAG_LOW_PROFILE){
+            view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        }
+    }
 }
