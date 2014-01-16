@@ -28,7 +28,7 @@ public class ToastyHTTPHandler {
         try {
             /* get ip address by hostname
                Doesn't work on the emulator, requires Internet Permissions */
-            InetAddress addr = java.net.InetAddress.getByName("SethThinkPadWin");
+            InetAddress addr = java.net.InetAddress.getByName("raspberryPi");
             String ip = addr.getHostAddress() + ":9000";
 
             // Setup Post to customer_login
