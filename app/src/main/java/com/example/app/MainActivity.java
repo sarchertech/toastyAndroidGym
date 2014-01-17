@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -26,6 +29,13 @@ public class MainActivity extends Activity {
     public final static String CUSTOMER_LEVEL = "com.example.app.CUSTOMER_LEVEL";
     public final static String CUSTOMER_ID = "com.example.app.CUSTOMER_ID";
     public final static String CUSTOMER_NAME = "com.example.app.CUSTOMER_NAME";
+    public final static String GET_IP = "com.example.app.GET_IP";
+
+    // for shared preferences
+    public final static String IP = "com.example.app.IP";
+
+    //public static String IP = "";
+    public static ProgressDialog lostConnectionDialog;
 
     public void handleLoginErrors(int errCode) {
         String errMessage = "Oops, something went wrong.\n\nPlease try again or contact an employee." +
@@ -61,7 +71,8 @@ public class MainActivity extends Activity {
             params.add(new BasicNameValuePair("Fob_num", keynumString));
 
             // post to customer_login
-            ToastyHttpResponse response = ToastyHTTPHandler.Post("customer_login", params);
+            ToastyHTTPHandler thandler = new ToastyHTTPHandler(this);
+            ToastyHttpResponse response = thandler.post("customer_login", params);
 
             if (response.Error != 0) {
                 return response.Error;
@@ -112,10 +123,6 @@ public class MainActivity extends Activity {
         }
 
         //handleLoginErrors(login(9858));
-        ProgressDialog progress;
-        progress = ProgressDialog.show(this, "Lost Connection", "Please wait while Toasty reconnects", true);
-
-        //ToastyHTTPHandler.scanSubnet(progress);
     }
 
     @Override
@@ -125,6 +132,19 @@ public class MainActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // check to see if we are supposed to scan for an IP--if another activity said so, or IP is blank
+        Boolean getID = false;
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) { // have to check b/c getExtras may return null
+            getID = extras.getBoolean(GET_IP, false);
+        }
+        // IP is stored in shared preferences so that it's persistent
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (getID || prefs.getString(IP, "").isEmpty()) {
+            IPFinder task = new IPFinder(this);
+            task.execute();
+        }
 
          /* Handle hidden keyfob text field
            Note: hardware keyboards always return actionId=0 when pressing enter, ignoring imeOptions="actionSend" in the xml
@@ -147,5 +167,40 @@ public class MainActivity extends Activity {
             }
         });
         /* End handle keyfob field */
+    }
+}
+
+class IPFinder extends AsyncTask<Void, Void, String>
+{
+    private ProgressDialog dialog;
+    private Activity activity;
+
+
+    public IPFinder(Activity activity) {
+        this.activity = activity;
+    }
+
+    @Override
+    protected void onPreExecute()
+    {
+        this.dialog = ProgressDialog.show(activity, "Lost Connection", "Please wait while Toasty reconnects.\n\nThis may take up to a minute.", true);
+        View view = dialog.getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+    }
+
+    @Override
+    protected String doInBackground(Void... params)
+    {
+        ToastyHTTPHandler thandler = new ToastyHTTPHandler(activity);
+        thandler.scanSubnet();
+        return "";
+    }
+
+    @Override
+    protected void onPostExecute(String result)
+    {
+        this.dialog.dismiss();
+        View view = activity.getWindow().getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
     }
 }

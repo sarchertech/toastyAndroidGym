@@ -37,7 +37,8 @@ public class MinuteSelection extends Activity {
         params.add(new BasicNameValuePair("cust_num", Integer.toString(customerID)));
 
         // post to start_bed
-        ToastyHttpResponse response = ToastyHTTPHandler.Post("start_bed", params);
+        ToastyHTTPHandler thandler = new ToastyHTTPHandler(this);
+        ToastyHttpResponse response = thandler.post("start_bed", params);
 
         // check for http errors
         if (response.Error != 0) {

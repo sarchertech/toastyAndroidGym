@@ -38,7 +38,8 @@ public class BedSelection extends Activity implements ActionBar.TabListener {
         params.add(new BasicNameValuePair("Level", Integer.toString(lvl)));
 
         // post to customer_login
-        ToastyHttpResponse response = ToastyHTTPHandler.Post("bed_status", params);
+        ToastyHTTPHandler thandler = new ToastyHTTPHandler(this);
+        ToastyHttpResponse response = thandler.post("bed_status", params);
 
         if (response.Error != 0) {
             return response.Error;
