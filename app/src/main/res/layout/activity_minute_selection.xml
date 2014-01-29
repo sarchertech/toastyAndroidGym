@@ -30,7 +30,8 @@
         android:layout_height="200dp"
         android:layout_marginTop="107dp"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="100dp" />
+        android:layout_marginLeft="100dp"
+        android:background="@drawable/minutebg" />
     <Button
         android:id="@+id/minuteButton"
         android:layout_width="350dp"
@@ -41,7 +42,7 @@
         android:layout_marginRight="100dp"
         android:layout_marginTop="130dp"
         android:enabled="false"
-        android:onClick="startBed"/>
+        android:onClick="startBed" />
 
 </RelativeLayout>
 
